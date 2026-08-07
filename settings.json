@@ -1,0 +1,51 @@
+{
+    "redhat.telemetry.enabled": false,
+    "Laravel.phpEnvironment": "local",
+
+    "vim.leader": "<space>",
+    "vim.normalModeKeyBindings": [
+        { "before" : ["u"], "commands": ["undo"] },
+        { "before" : ["<c-r>"], "commands": ["redo"] },
+        { "before" : ["K"], "commands": ["editor.action.showHover"] },
+        { "before": ["<leader>","c","a"], "commands": ["editor.action.quickFix"] },
+        { "before": ["<leader>","c", "s"], "commands": ["editor.action.sourceAction"] },
+        { "before": ["<leader>","c","a"], "commands": ["editor.action.quickFix"]},
+        { "before": ["<leader>","s","g"], "commands": ["workbench.action.findInFiles"] },
+        { "before": ["<leader>","s","f"], "commands": ["workbench.action.quickOpen"] },
+        { "before": ["<leader>","f"], "commands": ["editor.action.formatDocument"] },
+        { "before": ["\\"], "commands": ["workbench.action.toggleSidebarVisibility"] },
+        { "before": ["<leader>","t", "a"], "commands": ["workbench.action.toggleActivityBarVisibility"] },
+        { "before": ["g", "I"], "commands": ["editor.action.goToImplementation"] },
+        { "before": ["g", "r"], "commands": ["editor.action.goToReferences"] },
+        { "before": ["g", "d"], "commands": ["editor.action.goToDefinition"] },
+    ],
+    "vim.visualModeKeyBindings": [
+        { "before": ["<leader>","f"], "commands": ["editor.action.formatSelection"] },
+    ],
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1,
+        "vscodevim.vim": 1
+    },
+    "workbench.colorTheme": "Gruvbox Dark Medium",
+    "zenMode.hideLineNumbers": false,
+    "zenMode.hideStatusBar": false,
+    "zenMode.hideActivityBar": false,
+    "editor.fontFamily": "'Adwaita Mono', 'monospace', monospace",
+    "window.zoomLevel": 0.5,
+    "boot-java.validation.java.spring-aot": "ON",
+    "terminal.integrated.stickyScroll.enabled": false,
+    "window.menuBarVisibility": "compact",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "spring-boot.ls.problem.spring-aot.JAVA_CONCRETE_BEAN_TYPE": "IGNORE",
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.autoClosingBrackets": "always",
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "cSpell.language": "en,fr",
+    "workbench.activityBar.location": "hidden"
+}
