@@ -210,17 +210,17 @@ return {
 
 			servers.clangd = {}
 
-			-- servers.html = {}
+			servers.html = {}
 
-			-- servers.cssls = {}
+			servers.cssls = {}
 
 			-- servers.astro = {}
 
 			-- servers.angularls = {}
 
-			-- servers.ts_ls = {
-			-- 	filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
-			-- }
+			servers.ts_ls = {
+				filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
+			}
 
 			servers.phpactor = {
 				filetypes = { "php" },
