@@ -1,6 +1,6 @@
 return {
 	"Exafunction/windsurf.nvim",
-	enabled = require("nixCatsUtils").enableForCategory("custom-ai-nonfree"),
+	enabled = require("config.profiles").enabled("ai_nonfree"),
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"hrsh7th/nvim-cmp",

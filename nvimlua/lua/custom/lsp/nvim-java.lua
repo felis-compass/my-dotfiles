@@ -1,6 +1,5 @@
 return {
 	"nvim-java/nvim-java",
-	enabled = require("nixCatsUtils").enableForCategory("require-mason"),
 	dependencies = {
 		"nvim-java/lua-async",
 		"nvim-java/nvim-java-refactor",

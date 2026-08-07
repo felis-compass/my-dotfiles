@@ -1,6 +1,6 @@
 return {
 	"olimorris/codecompanion.nvim",
-	enabled = require("nixCatsUtils").enableForCategory("custom-ai"),
+	enabled = require("config.profiles").enabled("ai_libre"),
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"nvim-treesitter/nvim-treesitter",
