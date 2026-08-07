@@ -165,15 +165,8 @@ return {
 			-- nixd isn't installable via mason. If it's already on $PATH (e.g. provided
 			-- by home-manager/NixOS), prefer it; otherwise fall back to nil_ls via mason.
 			if vim.fn.executable("nixd") == 1 then
-				servers.nixd = {
-					settings = {
-						nixd = {
-							nixpkgs = {
-								expr = "import (builtins.getFlake(toString ./.)).inputs.nixpkgs { }",
-							},
-						},
-					},
-				}
+				-- servers.nixd = {}
+				vim.lsp.enable("nixd")
 			else
 				servers.nil_ls = {}
 			end
