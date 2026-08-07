@@ -6,6 +6,6 @@ return {
 	require("custom.plugins.conform"),
 	require("custom.plugins.other"),
 
-	require("custom.plugins.codeium"),
+	require("custom.plugins.windsurf"),
 	require("custom.plugins.codecompanion"),
 }

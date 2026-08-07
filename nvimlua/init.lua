@@ -1,17 +1,3 @@
--- NOTE: NIXCATS USERS:
--- NOTE: there are also notes added as a tutorial of how to use the nixCats lazy wrapper.
--- you can search for the following string in order to find them:
--- NOTE: nixCats:
-
--- like this one:
--- NOTE: nixCats: this just gives nixCats global command a default value
--- so that it doesnt throw an error if you didnt install via nix.
--- usage of both this setup and the nixCats command is optional,
--- but it is very useful for passing info from nix to lua so you will likely use it at least once.
-require("nixCatsUtils").setup({
-	non_nix_value = true,
-})
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -19,9 +5,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
--- NOTE: nixCats: we asked nix if we have it instead of setting it here.
--- because nix is more likely to know if we have a nerd font or not.
-vim.g.have_nerd_font = nixCats("have_nerd_font")
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -146,16 +130,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- NOTE: nixCats: You might want to move the lazy-lock.json file
-local function getlockfilepath()
-	if require("nixCatsUtils").isNixCats and type(require("nixCats").settings.unwrappedCfgPath) == "string" then
-		return require("nixCats").settings.unwrappedCfgPath .. "/lazy-lock.json"
-	else
-		return vim.fn.stdpath("config") .. "/lazy-lock.json"
-	end
-end
 local lazyOptions = {
-	lockfile = getlockfilepath(),
+	-- Defaults to stdpath("config") .. "/lazy-lock.json", which is already
+	-- isolated per-profile since $NVIM_APPNAME changes stdpath("config").
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the
 		-- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
@@ -188,9 +165,24 @@ local lazyOptions = {
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
--- NOTE: nixCats: this the lazy wrapper. Use it like require('lazy').setup() but with an extra
--- argument, the path to lazy.nvim as downloaded by nix, or nil, before the normal arguments.
-require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", "lazy.nvim" }), {
+--  Bootstrap lazy.nvim itself if it isn't installed yet.
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+	if vim.v.shell_error ~= 0 then
+		vim.api.nvim_echo({
+			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+			{ out, "WarningMsg" },
+			{ "\nPress any key to exit..." },
+		}, true, {})
+		vim.fn.getchar()
+		os.exit(1)
+	end
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
 	-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
 	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
 
@@ -204,8 +196,6 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 	--    require('Comment').setup({})
 
 	-- "gc" to comment visual regions/lines
-	-- NOTE: nixCats: nix downloads it with a different file name.
-	-- tell lazy about that.
 	{ "numToStr/Comment.nvim", name = "comment.nvim", opts = {} },
 
 	-- Here is a more advanced example where we pass configuration
@@ -280,7 +270,7 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
 		event = "VimEnter",
-		branch = "0.1.x",
+		-- branch = "0.1.x",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{ -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -288,17 +278,13 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 
 				-- `build` is used to run some command when the plugin is installed/updated.
 				-- This is only run then, not every time Neovim starts up.
-				-- NOTE: nixCats: use lazyAdd to only run build steps if nix wasnt involved.
-				-- because nix already did this.
-				build = require("nixCatsUtils").lazyAdd("make"),
+				build = "make",
 
 				-- `cond` is a condition used to determine whether this plugin should be
 				-- installed and loaded.
-				-- NOTE: nixCats: use lazyAdd to only add this if nix wasnt involved.
-				-- because nix built it already, so who cares if we have make in the path.
-				cond = require("nixCatsUtils").lazyAdd(function()
+				cond = function()
 					return vim.fn.executable("make") == 1
-				end),
+				end,
 			},
 			{ "nvim-telescope/telescope-ui-select.nvim" },
 
@@ -331,11 +317,14 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				--
-				-- defaults = {
-				--   mappings = {
-				--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-				--   },
-				-- },
+				defaults = {
+					-- mappings = {
+					--   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+					-- },
+					preview = {
+						treesitter = false,
+					},
+				},
 				-- pickers = {}
 				extensions = {
 					["ui-select"] = {
@@ -386,7 +375,6 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 		end,
 	},
 
-
 	{ -- Autocompletion
 		"hrsh7th/nvim-cmp",
 		event = "InsertEnter",
@@ -394,10 +382,8 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 			-- Snippet Engine & its associated nvim-cmp source
 			{
 				"L3MON4D3/LuaSnip",
-				-- NOTE: nixCats: nix downloads it with a different file name.
-				-- tell lazy about that.
 				name = "luasnip",
-				build = require("nixCatsUtils").lazyAdd((function()
+				build = (function()
 					-- Build Step is needed for regex support in snippets.
 					-- This step is not supported in many windows environments.
 					-- Remove the below condition to re-enable on windows.
@@ -405,7 +391,7 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 						return
 					end
 					return "make install_jsregexp"
-				end)()),
+				end)(),
 				dependencies = {
 					-- `friendly-snippets` contains a variety of premade snippets.
 					--    See the README about individual language/framework/plugin snippets:
@@ -563,12 +549,19 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 		end,
 	},
 	{ -- Highlight, edit, and navigate code
+		-- NOTE: the "main" branch (the GitHub default branch, and what you get
+		-- with no `branch =` pin) is a full rewrite with a different API than
+		-- most nvim-treesitter tutorials/blog posts assume: there is no more
+		-- `configs.setup{ highlight = { enable = true }, ensure_installed = ... }`.
+		-- Highlighting is instead started per-buffer via `vim.treesitter.start()`,
+		-- which is what the `config` function below sets up.
 		"nvim-treesitter/nvim-treesitter",
-		build = require("nixCatsUtils").lazyAdd(":TSUpdate"),
-		opts = {
-			-- NOTE: nixCats: use lazyAdd to only set these 2 options if nix wasnt involved.
-			-- because nix already ensured they were installed.
-			ensure_installed = require("nixCatsUtils").lazyAdd({
+		branch = "main",
+		build = ":TSUpdate",
+		config = function()
+			-- Parsers to install up front. Anything else gets installed
+			-- on-demand the first time you open that filetype (see below).
+			local ensure_installed = {
 				"bash",
 				"c",
 				"diff",
@@ -576,32 +569,59 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 				"lua",
 				"luadoc",
 				"markdown",
+				"python",
 				"vim",
 				"vimdoc",
-			}),
-			auto_install = require("nixCatsUtils").lazyAdd(true, false),
+			}
 
-			highlight = {
-				enable = true,
-				-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-				--  If you are experiencing weird indenting issues, add the language to
-				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-				additional_vim_regex_highlighting = { "ruby" },
-			},
-			indent = { enable = true, disable = { "ruby" } },
-		},
-		config = function(_, opts)
-			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+			require("nvim-treesitter").setup({
+				-- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
+				install_dir = vim.fn.stdpath("data") .. "/site",
+			})
+			-- Fire-and-forget; these download/compile in the background.
+			require("nvim-treesitter").install(ensure_installed)
 
-			-- Prefer git instead of curl in order to improve connectivity in some environments
-			require("nvim-treesitter.install").prefer_git = true
-			---@diagnostic disable-next-line: missing-fields
-			require("nvim-treesitter.config").setup(opts)
+			---@param bufnr integer
+			---@param lang string
+			---@return boolean started
+			local function start_highlight(bufnr, lang)
+				if not vim.treesitter.language.add(lang) then
+					return false
+				end
+				vim.treesitter.start(bufnr, lang)
+				vim.bo[bufnr].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				return true
+			end
+
+			-- Start treesitter highlighting/indent for every filetype that has
+			-- (or can get) a parser -- this is the "auto_install" equivalent:
+			-- if the parser isn't installed yet, install it then retry once done.
+			vim.api.nvim_create_autocmd("FileType", {
+				group = vim.api.nvim_create_augroup("custom-treesitter-start", { clear = true }),
+				callback = function(event)
+					local lang = vim.treesitter.language.get_lang(event.match) or event.match
+					if start_highlight(event.buf, lang) then
+						return
+					end
+					pcall(function()
+						require("nvim-treesitter").install(lang):await(function(err)
+							if err then
+								return
+							end
+							vim.schedule(function()
+								if vim.api.nvim_buf_is_valid(event.buf) then
+									start_highlight(event.buf, lang)
+								end
+							end)
+						end)
+					end)
+				end,
+			})
 
 			-- There are additional nvim-treesitter modules that you can use to interact
 			-- with nvim-treesitter. You should go explore a few and see what interests you:
 			--
-			--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+			--    - Incremental selection: see `:help nvim-treesitter-incremental-selection-mod`
 			--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 			--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 		end,
@@ -616,9 +636,6 @@ require("nixCatsUtils.lazyCat").setup(nixCats.pawsible({ "allPlugins", "start", 
 	--  Here are some example plugins that I've included in the Kickstart repository.
 	--  Uncomment any of the lines below to enable them (you will need to restart nvim).
 	--
-	-- NOTE: nixCats: instead of uncommenting them, you can enable them
-	-- from the categories set in your packageDefinitions in your flake or other template!
-	-- This is because within them, we used nixCats to check if it should be loaded!
 	require("kickstart.plugins.debug"),
 	require("kickstart.plugins.indent_line"),
 	require("kickstart.plugins.lint"),

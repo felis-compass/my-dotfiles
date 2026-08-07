@@ -1,34 +1,13 @@
 return {
-	require("custom.lsp.jdtls"),
 	require("custom.lsp.nvim-java"),
 
 	{ -- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
 		dependencies = {
 			-- Automatically install LSPs and related tools to stdpath for Neovim
-			{
-				"mason-org/mason.nvim",
-				-- NOTE: nixCats: use lazyAdd to only enable mason if nix wasnt involved.
-				-- because we will be using nix to download things instead.
-				-- enabled = require("nixCatsUtils").lazyAdd(true, false),
-				enabled = require("nixCatsUtils").lazyAdd(true, false)
-					or require("nixCatsUtils").enableForCategory("require-mason"),
-				config = true,
-			}, -- NOTE: Must be loaded before dependants
-			{
-				"mason-org/mason-lspconfig.nvim",
-				-- NOTE: nixCats: use lazyAdd to only enable mason if nix wasnt involved.
-				-- because we will be using nix to download things instead.
-				enabled = require("nixCatsUtils").lazyAdd(true, false)
-					or require("nixCatsUtils").enableForCategory("require-mason"),
-			},
-			{
-				"WhoIsSethDaniel/mason-tool-installer.nvim",
-				-- NOTE: nixCats: use lazyAdd to only enable mason if nix wasnt involved.
-				-- because we will be using nix to download things instead.
-				enabled = require("nixCatsUtils").lazyAdd(true, false)
-					or require("nixCatsUtils").enableForCategory("require-mason"),
-			},
+			{ "mason-org/mason.nvim", config = true }, -- NOTE: Must be loaded before dependants
+			{ "mason-org/mason-lspconfig.nvim" },
+			{ "WhoIsSethDaniel/mason-tool-installer.nvim" },
 
 			-- Useful status updates for LSP.
 			-- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -36,16 +15,7 @@ return {
 
 			-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 			-- used for completion, annotations and signatures of Neovim apis
-			{
-				"folke/lazydev.nvim",
-				ft = "lua",
-				opts = {
-					library = {
-						-- adds type hints for nixCats global
-						{ path = (require("nixCats").nixCatsPath or "") .. "/lua", words = { "nixCats" } },
-					},
-				},
-			},
+			{ "folke/lazydev.nvim", ft = "lua", opts = {} },
 			{
 				"nvim-java/nvim-java",
 			},
@@ -181,7 +151,6 @@ return {
 			--  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
 			--  - settings (table): Override the default settings passed when initializing the server.
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-			-- NOTE: nixCats: there is help in nixCats for lsps at `:h nixCats.LSPs` and also `:h nixCats.luaUtils`
 			local servers = {}
 			-- servers.rust_analyzer = {},
 			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -193,8 +162,9 @@ return {
 			-- servers.tsserver = {},
 			--
 
-			-- NOTE: nixCats: nixd is not available on mason.
-			if require("nixCatsUtils").isNixCats then
+			-- nixd isn't installable via mason. If it's already on $PATH (e.g. provided
+			-- by home-manager/NixOS), prefer it; otherwise fall back to nil_ls via mason.
+			if vim.fn.executable("nixd") == 1 then
 				servers.nixd = {
 					settings = {
 						nixd = {
@@ -205,7 +175,6 @@ return {
 					},
 				}
 			else
-				servers.rnix = {}
 				servers.nil_ls = {}
 			end
 			servers.lua_ls = {
@@ -219,20 +188,21 @@ return {
 						},
 						-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
 						diagnostics = {
-							globals = { "nixCats" },
 							disable = { "missing-fields" },
 						},
 					},
 				},
 			}
 
-			servers.pyright = {
-				python = {
-					analysis = {
-						diagnosticMode = "workspace",
-					},
-				},
-			}
+			-- servers.pyright = {
+			-- 	python = {
+			-- 		analysis = {
+			-- 			diagnosticMode = "workspace",
+			-- 		},
+			-- 	},
+			-- }
+
+			servers.pyrefly = {}
 
 			servers.jdtls = {}
 
@@ -240,17 +210,17 @@ return {
 
 			servers.clangd = {}
 
-			servers.html = {}
+			-- servers.html = {}
 
-			servers.cssls = {}
+			-- servers.cssls = {}
 
-			servers.astro = {}
+			-- servers.astro = {}
 
-			servers.angularls = {}
+			-- servers.angularls = {}
 
-			servers.ts_ls = {
-				filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
-			}
+			-- servers.ts_ls = {
+			-- 	filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
+			-- }
 
 			servers.phpactor = {
 				filetypes = { "php" },
@@ -260,62 +230,43 @@ return {
 				},
 			}
 
-			servers.gopls = {}
-
-			servers.hls = {
-				-- cmd = { "haskell-language-server", "--lsp" },
-				filetypes = { "haskell", "lhaskell", "cabal" },
-			}
+			-- servers.gopls = {}
+			--
+			-- servers.hls = {
+			-- 	-- cmd = { "haskell-language-server", "--lsp" },
+			-- 	filetypes = { "haskell", "lhaskell", "cabal" },
+			-- }
 
 			servers.terraformls = {}
 
-			-- NOTE: nixCats: if nix, use lspconfig instead of mason
-			-- You could MAKE it work, using lspsAndRuntimeDeps and sharedLibraries in nixCats
-			-- but don't... its not worth it. Just add the lsp to lspsAndRuntimeDeps.
-			if require("nixCatsUtils").isNixCats then
-				for server_name, _ in pairs(servers) do
-					vim.lsp.config(server_name, {
-						capabilities = capabilities,
-						settings = servers[server_name],
-						filetypes = (servers[server_name] or {}).filetypes,
-						cmd = (servers[server_name] or {}).cmd,
-						root_pattern = (servers[server_name] or {}).root_pattern,
-					})
-					vim.lsp.enable(server_name)
-				end
-			else
-				-- NOTE: nixCats: and if no nix, do it the normal way
+			-- Ensure the servers and tools above are installed
+			--  To check the current status of installed tools and/or manually install
+			--  other tools, you can run
+			--    :Mason
+			--
+			--  You can press `g?` for help in this menu.
+			require("mason").setup()
 
-				-- Ensure the servers and tools above are installed
-				--  To check the current status of installed tools and/or manually install
-				--  other tools, you can run
-				--    :Mason
-				--
-				--  You can press `g?` for help in this menu.
-				require("mason").setup()
+			-- You can add other tools here that you want Mason to install
+			-- for you, so that they are available from within Neovim.
+			local ensure_installed = vim.tbl_keys(servers or {})
+			vim.list_extend(ensure_installed, {
+				"stylua", -- Used to format Lua code
+			})
+			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-				-- You can add other tools here that you want Mason to install
-				-- for you, so that they are available from within Neovim.
-				local ensure_installed = vim.tbl_keys(servers or {})
-				vim.list_extend(ensure_installed, {
-					"stylua", -- Used to format Lua code
-				})
-				require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
-				require("mason-lspconfig").setup({
-					handlers = {
-						function(server_name)
-							local server = servers[server_name] or {}
-							-- This handles overriding only values explicitly passed
-							-- by the server configuration above. Useful when disabling
-							-- certain features of an LSP (for example, turning off formatting for tsserver)
-							server.capabilities =
-								vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-							require("lspconfig")[server_name].setup(server)
-						end,
-					},
-				})
-			end
+			require("mason-lspconfig").setup({
+				handlers = {
+					function(server_name)
+						local server = servers[server_name] or {}
+						-- This handles overriding only values explicitly passed
+						-- by the server configuration above. Useful when disabling
+						-- certain features of an LSP (for example, turning off formatting for tsserver)
+						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+						require("lspconfig")[server_name].setup(server)
+					end,
+				},
+			})
 		end,
 	},
 }

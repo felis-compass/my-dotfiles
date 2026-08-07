@@ -25,41 +25,12 @@ return { -- Autoformat
 		-- end,
 
 		formatters = {
-			-- Curretnly not used
-			google_java_format_aosp = {
-				command = "google-java-format",
-				args = { "-", "--aosp" },
-			},
-
-			-- If maven exist then try to use spotless, else fallback to google java format
-			-- Currently does not handle the case where maven exits but spotless plugin not exists
-			-- Currently not used
-			java_format_custom = {
-				cwd = require("conform.util").root_file({ "mvnw" }),
-				command = function()
-					local file = io.open("./mvnw")
-					if file ~= nil then
-						return "./mvnw"
-					end
-					return "google-java-format"
-				end,
-				args = function(arg1, ctx)
-					local file = io.open("./mvnw")
-					if file ~= nil then
-						return {
-							"spotless:apply",
-							"-DspotlessIdeHook=" .. ctx.filename,
-							"-DspotlessIdeHookUseStdIn",
-							"-DspotlessIdeHookUseStdOut",
-							"--quiet",
-						}
-					end
-					return {
-						"-",
-						"--aosp",
-					}
-				end,
-			},
+			-- NOTE: a couple of unused, commented-out custom Java formatters
+			-- (google_java_format_aosp / java_format_custom) used to live here.
+			-- They called `require("conform.util")` eagerly at spec-definition
+			-- time, which crashes on a from-scratch install (conform.nvim isn't
+			-- on the runtimepath yet the first time lazy.nvim parses this spec).
+			-- Removed since neither was referenced by formatters_by_ft below.
 		},
 		formatters_by_ft = {
 			lua = { "stylua" },

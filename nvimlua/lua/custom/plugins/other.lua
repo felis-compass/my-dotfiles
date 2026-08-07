@@ -1,6 +1,5 @@
 return {
 	"rgroli/other.nvim",
-	enabled = require("nixCatsUtils").enableForCategory("general"),
 	keys = {
 		{
 			"<leader>so",

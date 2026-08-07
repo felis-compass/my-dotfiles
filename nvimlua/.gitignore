@@ -1,0 +1,4 @@
+# If this config is symlinked straight from the repo (rather than through a
+# read-only nix store path), lazy.nvim writes its lockfile into this
+# directory since it lives at stdpath("config").
+lazy-lock.json

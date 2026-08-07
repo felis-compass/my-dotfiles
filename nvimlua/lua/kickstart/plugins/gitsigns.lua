@@ -5,8 +5,6 @@
 return {
 	{
 		"lewis6991/gitsigns.nvim",
-		-- NOTE: nixCats: return true only if category is enabled, else false
-		enabled = require("nixCatsUtils").enableForCategory("kickstart-gitsigns"),
 		opts = {
 			on_attach = function(bufnr)
 				local gitsigns = require("gitsigns")
