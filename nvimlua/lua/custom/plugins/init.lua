@@ -7,6 +7,6 @@ return {
 	require("custom.plugins.other"),
 	require("custom.plugins.fastapi"),
 
-	require("custom.plugins.windsurf"),
+	require("custom.plugins.ai-nonfree"),
 	require("custom.plugins.codecompanion"),
 }
