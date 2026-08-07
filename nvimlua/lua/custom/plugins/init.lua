@@ -5,6 +5,7 @@
 return {
 	require("custom.plugins.conform"),
 	require("custom.plugins.other"),
+	require("custom.plugins.fastapi"),
 
 	require("custom.plugins.windsurf"),
 	require("custom.plugins.codecompanion"),
