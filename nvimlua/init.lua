@@ -558,6 +558,7 @@ require("lazy").setup({
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
 		build = ":TSUpdate",
+		lazy = false,
 		config = function()
 			-- Parsers to install up front. Anything else gets installed
 			-- on-demand the first time you open that filetype (see below).
