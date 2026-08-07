@@ -34,9 +34,9 @@ return {
 					-- Key bindings for managing completions in virtual text mode.
 					key_bindings = {
 						-- Accept the current completion.
-						accept = "<M-]>",
+						accept = "<Tab>",
 						-- Accept the next word.
-						accept_word = "<M-[>",
+						accept_word = "<S-Tab>",
 						-- Accept the next line.
 						accept_line = false,
 						-- Clear the virtual text.
@@ -57,10 +57,6 @@ return {
 		end,
 	},
 	{
-		"github/copilot.vim",
-		enabled = require("config.profiles").enabled("ai_nonfree"),
-	},
-	{
 		"CopilotC-Nvim/CopilotChat.nvim",
 		-- enabled = require("config.profiles").enabled("ai_nonfree"),
 		enabled = true,
@@ -77,6 +73,43 @@ return {
 				{ "<leader>cf", "<cmd>CopilotChatFix<cr>", desc = "CopilotChat Fix" },
 			},
 		},
+	},
+
+	{
+		"zbirenbaum/copilot.lua",
+		cmd = "Copilot",
+		build = ":Copilot auth",
+		event = "BufReadPost",
+		config = function()
+			require("copilot").setup({
+
+				suggestion = {
+					enabled = not vim.g.ai_cmp,
+					auto_trigger = true,
+					hide_during_completion = vim.g.ai_cmp,
+					keymap = {
+						accept = "<Tab>", -- handled by nvim-cmp / blink.cmp
+						next = false,
+						prev = false,
+					},
+				},
+				panel = { enabled = false },
+				filetypes = {
+					markdown = true,
+					help = true,
+				},
+				server_opts_overrides = {
+					settings = {
+						["github"] = { -- For standard copilot.
+							endpoint = "https://api.githubcopilot.com",
+						},
+						["github-enterprise"] = { -- For GHE enterprise copilot server.
+							uri = "https://my-enterprise.ghe.com",
+						},
+					},
+				},
+			})
+		end,
 	},
 	-- {
 	-- 	"yetone/avante.nvim",
@@ -127,8 +160,8 @@ return {
 	-- 		"stevearc/dressing.nvim", -- for input provider dressing
 	-- 		"folke/snacks.nvim", -- for input provider snacks
 	-- 		"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-	-- 		-- "zbirenbaum/copilot.lua", -- for providers='copilot'
-	-- 		"github/copilot.vim",
+	-- 		"zbirenbaum/copilot.lua", -- for providers='copilot'
+	-- 		-- "github/copilot.vim",
 	-- 		{
 	-- 			-- support for image pasting
 	-- 			"HakonHarnes/img-clip.nvim",
@@ -156,30 +189,8 @@ return {
 	-- 		},
 	-- 	},
 	-- },
-	--
-	--
-
 	-- {
-	-- 	"zbirenbaum/copilot.lua",
+	-- 	"github/copilot.vim",
 	-- 	enabled = require("config.profiles").enabled("ai_nonfree"),
-	-- 	dependencies = {
-	-- 		"copilotlsp-nvim/copilot-lsp", -- (optional) for NES functionality
-	-- 	},
-	-- 	cmd = "Copilot",
-	-- 	event = "BufReadPost",
-	-- 	opts = {
-	-- 		suggestion = {
-	-- 			-- enabled = not vim.g.ai_cmp,
-	-- 			enabled = true,
-	-- 			auto_trigger = true,
-	-- 			hide_during_completion = vim.g.ai_cmp,
-	-- 			keymap = {
-	-- 				accept = false, -- handled by nvim-cmp / blink.cmp
-	-- 				next = "<M-]>",
-	-- 				prev = "<M-[>",
-	-- 			},
-	-- 		},
-	-- 		panel = { enabled = false },
-	-- 	},
 	-- },
 }
