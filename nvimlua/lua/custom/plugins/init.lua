@@ -3,10 +3,11 @@
 --
 -- See the kickstart.nvim README for more information
 return {
+	require("custom.plugins.markdown"),
 	require("custom.plugins.conform"),
 	require("custom.plugins.other"),
 	require("custom.plugins.fastapi"),
 
 	require("custom.plugins.ai-nonfree"),
-	require("custom.plugins.codecompanion"),
+	require("custom.plugins.ai-libre"),
 }
