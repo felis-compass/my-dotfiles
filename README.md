@@ -4,9 +4,9 @@
 
 There are 3 main version of my neovim configuration:
 
-- Normal -> `nvim`
-- AI OSS -> `export NVIM_PROFILE="nvim-ai-libre" & nvim`
-- AI Non Free -> `export NVIM_PROFILE="nvim-ai-nonfree" & nvim`
+- Normal -> `nvim` or `NVIM_PROFILE="" command nvim`
+- AI OSS -> `NVIM_PROFILE=nvim-ai-libre command nvim`
+- AI Non Free -> `NVIM_PROFILE=nvim-ai-nonfree command nvim`
 
 
 ## VSCode/VSCodium Configuration
