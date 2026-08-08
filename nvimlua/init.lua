@@ -601,6 +601,11 @@ require("lazy").setup({
 				group = vim.api.nvim_create_augroup("custom-treesitter-start", { clear = true }),
 				callback = function(event)
 					local lang = vim.treesitter.language.get_lang(event.match) or event.match
+					local unsupported_langs =
+						{ cmp_docs = true, fidget = true, TelescopeResults = true, TelescopePrompt = true }
+					if unsupported_langs[lang] then
+						return
+					end
 					if start_highlight(event.buf, lang) then
 						return
 					end
