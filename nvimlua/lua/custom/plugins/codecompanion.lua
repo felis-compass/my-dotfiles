@@ -7,33 +7,22 @@ return {
 	},
 	config = function()
 		require("codecompanion").setup({
-
-			adapters = {
-				qwen = function()
-					return require("codecompanion.adapters").extend("ollama", {
-						name = "qwen", -- Give this adapter a different name to differentiate it from the default ollama adapter
-						schema = {
-							model = {
-								default = "qwen2.5-coder:14b",
-							},
-							-- num_ctx = {
-							-- 	default = 16384,
-							-- },
-							-- num_predict = {
-							-- 	default = -1,
-							-- },
-						},
-					})
-				end,
-			},
-			strategies = {
+			interactions = {
 				chat = {
-					adapter = "qwen",
+					adapter = {
+						name = "ollama",
+						model = "qwen2.5-coder:7b"
+					}
 				},
 				inline = {
-					adapter = "qwen",
-				},
+					adapter = {
+						name = "ollama",
+						model = "qwen2.5-coder:7b"
+					}
+				}
 			},
+
+
 		})
 	end,
 }
