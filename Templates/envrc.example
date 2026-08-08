@@ -1,0 +1,3 @@
+git add flake.nix flake.lock shell.nix
+use flake
+git restore --staged flake.nix flake.lock shell.nix
