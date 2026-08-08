@@ -58,8 +58,8 @@ return {
 	},
 	{
 		"CopilotC-Nvim/CopilotChat.nvim",
-		-- enabled = require("config.profiles").enabled("ai_nonfree"),
-		enabled = true,
+		enabled = require("config.profiles").enabled("ai_nonfree"),
+		-- enabled = true,
 		dependencies = {
 			{ "nvim-lua/plenary.nvim", branch = "master" },
 		},
@@ -77,6 +77,7 @@ return {
 
 	{
 		"zbirenbaum/copilot.lua",
+		enabled = require("config.profiles").enabled("ai_nonfree"),
 		cmd = "Copilot",
 		build = ":Copilot auth",
 		event = "BufReadPost",
