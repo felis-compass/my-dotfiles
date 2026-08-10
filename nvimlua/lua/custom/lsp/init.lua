@@ -1,5 +1,5 @@
 return {
-	require("custom.lsp.nvim-java"),
+	-- require("custom.lsp.nvim-java"),
 
 	{ -- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
@@ -141,6 +141,9 @@ return {
 			--  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+			-- `"*"` is a special config name: vim.lsp.config merges it into every other
+			-- named config, so this applies to all servers below without looping by hand.
+			vim.lsp.config("*", { capabilities = capabilities })
 
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -197,7 +200,20 @@ return {
 
 			servers.pyrefly = {}
 
-			servers.jdtls = {}
+			servers.jdtls = {
+				settings = {
+					java = {
+						compile = {
+							nullAnalysis = {
+								mode = "automatic", -- turn on analysis once jspecify is detected on the project classpath
+								nonnull = { "org.jspecify.annotations.NonNull" },
+								nullable = { "org.jspecify.annotations.Nullable" },
+								nonnullbydefault = { "org.jspecify.annotations.NullMarked" },
+							},
+						},
+					},
+				},
+			}
 
 			servers.lemminx = {}
 
@@ -248,18 +264,17 @@ return {
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-			require("mason-lspconfig").setup({
-				handlers = {
-					function(server_name)
-						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for tsserver)
-						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
-					end,
-				},
-			})
+			-- Register our overrides (settings/filetypes/init_options/etc.) for each server.
+			-- Do this before mason-lspconfig.setup() below so its `automatic_enable` (on by
+			-- default) picks up the merged config when it calls vim.lsp.enable() for us.
+			for name, config in pairs(servers) do
+				vim.lsp.config(name, config)
+			end
+
+			-- mason-lspconfig no longer takes a `handlers` table (that was the old
+			-- require('lspconfig')-based API); it just keeps Mason-installed servers on the
+			-- runtimepath and auto-enables them via vim.lsp.enable().
+			require("mason-lspconfig").setup()
 		end,
 	},
 }
