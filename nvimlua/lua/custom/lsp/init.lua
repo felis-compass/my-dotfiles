@@ -1,6 +1,45 @@
 return {
 	-- require("custom.lsp.nvim-java"),
 
+	{
+		"rcasia/neotest-java",
+		ft = "java",
+		dependencies = {
+			"mfussenegger/nvim-jdtls",
+			"mfussenegger/nvim-dap", -- for debugging (optional)
+			"rcarriga/nvim-dap-ui", -- recommended
+			"theHamsta/nvim-dap-virtual-text", -- recommended
+		},
+	},
+	{
+		"nvim-neotest/neotest",
+		dependencies = {
+			"nvim-neotest/nvim-nio",
+			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
+			"nvim-neotest/neotest-python",
+		},
+		config = function()
+			require("neotest").setup({
+				diagnostic = {
+					enabled = true,
+					severity = vim.diagnostic.severity.ERROR,
+				},
+				status = {
+					virtual_text = true,
+					signs = true,
+				},
+				adapters = {
+					-- require("neotest-python")({
+					-- 	dap = { justMyCode = false },
+					-- }),
+					require("neotest-java")({
+						-- Optional configuration here
+					}),
+				},
+			})
+		end,
+	},
 	{ -- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
 		dependencies = {
@@ -202,13 +241,29 @@ return {
 
 			servers.jdtls = {
 				settings = {
+					-- ["org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion"] = "ignore",
 					java = {
 						compile = {
 							nullAnalysis = {
 								mode = "automatic", -- turn on analysis once jspecify is detected on the project classpath
-								nonnull = { "org.jspecify.annotations.NonNull" },
-								nullable = { "org.jspecify.annotations.Nullable" },
-								nonnullbydefault = { "org.jspecify.annotations.NullMarked" },
+								nonnull = {
+									"org.jspecify.annotations.NonNull",
+									"javax.annotation.Nonnull",
+									"org.springframework.lang.NonNull",
+									"org.eclipse.jdt.annotation.NonNull",
+								},
+								nullable = {
+									"org.jspecify.annotations.Nullable",
+									"javax.annotation.Nullable",
+									"org.springframework.lang.Nullable",
+									"org.eclipse.jdt.annotation.Nullable",
+								},
+								nonnullbydefault = {
+									"org.jspecify.annotations.NullMarked",
+									"javax.annotation.ParametersAreNonnullByDefault",
+									"org.springframework.lang.NonNullApi",
+									"org.eclipse.jdt.annotation.NonNullByDefault",
+								},
 							},
 						},
 					},
