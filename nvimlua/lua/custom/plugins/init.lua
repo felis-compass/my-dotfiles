@@ -7,6 +7,7 @@ return {
 	require("custom.plugins.conform"),
 	require("custom.plugins.other"),
 	require("custom.plugins.fastapi"),
+	require("custom.plugins.git-tools"),
 
 	require("custom.plugins.ai-nonfree"),
 	require("custom.plugins.ai-libre"),

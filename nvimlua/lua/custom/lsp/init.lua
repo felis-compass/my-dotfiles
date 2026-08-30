@@ -278,6 +278,8 @@ return {
 
 			servers.cssls = {}
 
+			servers.tailwindcss = {}
+
 			-- servers.astro = {}
 
 			-- servers.angularls = {}
