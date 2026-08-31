@@ -18,6 +18,7 @@ return {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-neotest/neotest-python",
+			"marilari88/neotest-vitest",
 		},
 		config = function()
 			require("neotest").setup({
@@ -30,12 +31,13 @@ return {
 					signs = true,
 				},
 				adapters = {
-					-- require("neotest-python")({
-					-- 	dap = { justMyCode = false },
-					-- }),
+					require("neotest-python")({
+						-- dap = { justMyCode = false },
+					}),
 					require("neotest-java")({
 						-- Optional configuration here
 					}),
+					require("neotest-vitest"),
 				},
 			})
 		end,
@@ -239,6 +241,8 @@ return {
 
 			servers.pyrefly = {}
 
+			servers.ruff = {}
+
 			servers.jdtls = {
 				settings = {
 					-- ["org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion"] = "ignore",
@@ -287,6 +291,8 @@ return {
 			servers.ts_ls = {
 				filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
 			}
+
+			servers.eslint = {}
 
 			servers.phpactor = {
 				filetypes = { "php" },
