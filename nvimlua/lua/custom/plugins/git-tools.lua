@@ -1,5 +1,5 @@
 return {
-	{ "sindrets/diffview.nvim", lazy = true },
+	{ "sindrets/diffview.nvim" },
 	{
 		"rbong/vim-flog",
 		lazy = true,
