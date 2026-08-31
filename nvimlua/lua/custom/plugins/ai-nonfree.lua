@@ -65,7 +65,19 @@ return {
 		config = function()
 			require("codecompanion").setup({
 				interactions = {
-					cmd = {
+					chat = {
+						adapter = {
+							name = "ollama",
+							model = "qwen3.5:9b",
+						},
+					},
+					inline = {
+						adapter = {
+							name = "ollama",
+							model = "qwen3.5:9b",
+						},
+					},
+					cli = {
 						agent = "claude_code",
 						agents = {
 							claude_code = {
