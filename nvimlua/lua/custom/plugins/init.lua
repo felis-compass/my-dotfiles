@@ -9,6 +9,6 @@ return {
 	require("custom.plugins.fastapi"),
 	require("custom.plugins.git-tools"),
 
-	require("custom.plugins.ai-nonfree"),
-	require("custom.plugins.ai-libre"),
+	require("custom.plugins.ai"),
+	require("custom.plugins.ai-proprietary-only"),
 }
