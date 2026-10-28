@@ -1,0 +1,22 @@
+-- AI plugins that only work with one vendor's proprietary backend. Plugins that
+-- work with open source backends too go in ai.lua.
+return {
+	{
+		"CopilotC-Nvim/CopilotChat.nvim",
+		enabled = require("config.profiles").enabled("ai_nonfree"),
+		-- enabled = true,
+		dependencies = {
+			{ "nvim-lua/plenary.nvim", branch = "master" },
+		},
+		build = "make tiktoken",
+		opts = {
+			-- See Configuration section for options
+			keymaps = {
+				{ "<leader>cc", "<cmd>CopilotChat<cr>", desc = "CopilotChat" },
+				{ "<leader>cq", "<cmd>CopilotChatToggle<cr>", desc = "CopilotChat Toggle" },
+				{ "<leader>cr", "<cmd>CopilotChatReview<cr>", desc = "CopilotChat Review" },
+				{ "<leader>cf", "<cmd>CopilotChatFix<cr>", desc = "CopilotChat Fix" },
+			},
+		},
+	},
+}
