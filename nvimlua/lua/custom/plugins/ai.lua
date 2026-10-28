@@ -77,12 +77,12 @@ return {
 			end, { desc = "[A]I: add file/selection as [c]ontext" })
 
 			map("n", "<leader>ad", function()
-				cc.cli("#{diagnostics} Can you fix these?", { submit = false })
+				cc.cli("#{diagnostics} Can you fix these?", { submit = true })
 			end, { desc = "[A]I: fix [d]iagnostics" })
 
 			map("n", "<leader>ar", "<Cmd>CodeCompanionCodeReview<CR>", { desc = "[A]I: open code [r]eview" })
-			-- `<Cmd>` in normal mode, so a count is not read as a range.
 
+			-- `<Cmd>` in normal mode, so a count is not read as a range.
 			map("n", "<leader>aC", "<Cmd>CodeCompanionCodeReview Comment<CR>", { desc = "[A]I: review [C]omment" })
 
 			map("v", "<leader>aC", ":CodeCompanionCodeReview Comment<CR>", { desc = "[A]I: review [C]omment" })
