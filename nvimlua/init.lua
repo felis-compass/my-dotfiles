@@ -76,6 +76,12 @@ vim.o.shiftwidth = 4
 
 vim.o.winborder = "rounded"
 
+vim.o.spelllang = "en,fr"
+vim.opt.spelloptions:append("camel")
+-- `zg` adds words to a list outside this public repo. The folder must exist.
+vim.fn.mkdir(vim.fn.stdpath("data") .. "/spell", "p")
+vim.o.spellfile = vim.fn.stdpath("data") .. "/spell/custom.utf-8.add"
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -127,6 +133,16 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
 	callback = function()
 		vim.highlight.on_yank()
+	end,
+})
+
+-- Spell check prose: Markdown, commit messages, plain text and the AI prompt box.
+vim.api.nvim_create_autocmd("FileType", {
+	desc = "Spell check prose",
+	group = vim.api.nvim_create_augroup("custom-spell-prose", { clear = true }),
+	pattern = { "markdown", "gitcommit", "text", "codecompanion_input" },
+	callback = function()
+		vim.opt_local.spell = true
 	end,
 })
 
