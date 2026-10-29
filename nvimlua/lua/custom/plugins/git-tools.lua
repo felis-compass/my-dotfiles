@@ -7,7 +7,13 @@ return {
 			{ "<leader>td", "<cmd>DiffviewToggle<CR>", desc = "[T]oggle [D]iffview" },
 		},
 		config = function()
-			require("diffview").setup({})
+			require("diffview").setup({
+				keymaps = {
+					file_panel = {
+						{ "n", "cc", "<Cmd>botright Git commit<CR>", { desc = "Commit staged changes" } },
+					},
+				},
+			})
 
 			require("telescope").setup({
 				defaults = {
@@ -20,6 +26,10 @@ return {
 				},
 			})
 		end,
+	},
+	{
+		"tpope/vim-fugitive",
+		cmd = { "Git", "G" },
 	},
 	{
 		"rbong/vim-flog",
