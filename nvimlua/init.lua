@@ -502,6 +502,9 @@ require("lazy").setup({
 					{ name = "nvim_lsp_signature_help" },
 				},
 			})
+
+			-- English word completion in prose files.
+			require("custom.prose-completion")
 		end,
 	},
 
