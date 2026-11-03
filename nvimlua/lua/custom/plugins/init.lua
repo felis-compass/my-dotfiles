@@ -8,6 +8,7 @@ return {
 	require("custom.plugins.other"),
 	require("custom.plugins.fastapi"),
 	require("custom.plugins.git-tools"),
+	require("custom.plugins.completion"),
 
 	require("custom.plugins.ai"),
 	require("custom.plugins.ai-proprietary-only"),
