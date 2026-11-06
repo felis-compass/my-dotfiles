@@ -5,6 +5,7 @@ return {
 		lazy = false,
 		keys = {
 			{ "<leader>td", "<cmd>DiffviewToggle<CR>", desc = "[T]oggle [D]iffview" },
+			{ "<leader>tr", "<cmd>DiffviewRefresh<CR>", desc = "Diffview: [r]efresh files" },
 		},
 		config = function()
 			require("diffview").setup({
