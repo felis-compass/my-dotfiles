@@ -20,6 +20,7 @@ local M = {}
 ---@type GenMinuetHarness[]
 local harnesses = {
 	require("custom.gen-plugins.minuet.harness.claude"),
+	require("custom.gen-plugins.minuet.harness.compass"),
 }
 
 -- When a harness's prompt file is read, store its agent context in
