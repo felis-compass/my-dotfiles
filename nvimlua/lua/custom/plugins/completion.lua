@@ -164,8 +164,17 @@ return {
 				},
 			})
 
-			-- English word completion in prose files.
-			setup_prose_words(cmp)
+			-- English word completion in prose files. The advanced version (generated
+			-- code) adds autocorrect and learned ranking; false gives the basic list.
+			local pro_prose = true
+			if pro_prose then
+				local pro = require("custom.gen-plugins.pro-prose-complete")
+				-- After your own spell file, which "zg" keeps writing to.
+				vim.opt.spellfile:append(pro.spellfile)
+				pro.enable(cmp)
+			else
+				setup_prose_words(cmp)
+			end
 		end,
 	},
 }
