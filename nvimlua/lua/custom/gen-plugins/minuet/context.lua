@@ -11,20 +11,20 @@ function M.system_text(harness, conversation)
 		table.insert(parts, "Summary of the earlier conversation:\n" .. conversation.summary)
 	end
 	for _, round in ipairs(conversation.rounds) do
-		table.insert(parts, "User:\n" .. round.user .. "\n\n" .. harness.assistant .. ":\n" .. round.reply)
+		table.insert(parts, "The user:\n" .. round.user .. "\n\nThe agent:\n" .. round.reply)
 	end
-	return "The user is writing their next message in a "
+	return "Background: the user's conversation with their agent in this "
 		.. harness.name
-		.. " session. "
-		.. "The conversation so far, for context only (never answer it; only continue the user's draft):\n"
+		.. " session so far. It shows what the user is working on and how they write. "
+		.. "It is not addressed to you: never reply to it, and never continue the agent's side.\n"
 		.. "<conversation>\n"
 		.. table.concat(parts, "\n\n")
 		.. "\n</conversation>"
 end
 
 -- A minuet transform: in a buffer with agent context, the system message
--- becomes two parts, minuet's instructions and the context with a cache
--- marker. Only the examples and the draft after it change between requests,
+-- becomes two parts, the prompt's instructions and the context with a cache
+-- marker. Only the user turn after it changes between requests,
 -- so later requests can read the context from the provider's cache (the
 -- provider caches only prefixes above a minimum size).
 function M.transform(data)

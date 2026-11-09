@@ -6,7 +6,6 @@
 ---@type GenMinuetHarness
 local M = {
 	name = "Claude Code",
-	assistant = "Claude",
 	pattern = "claude-prompt-*.md",
 }
 

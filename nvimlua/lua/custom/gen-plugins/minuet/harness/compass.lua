@@ -6,7 +6,6 @@
 ---@type GenMinuetHarness
 local M = {
 	name = "Compass",
-	assistant = "Assistant",
 	pattern = "*/pi-editor-*/prompt.md",
 }
 
