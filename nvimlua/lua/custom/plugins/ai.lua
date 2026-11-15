@@ -1,4 +1,5 @@
 local profiles = require("config.profiles")
+local pro_prompt_prose = vim.fs.normalize(vim.uv.fs_realpath(vim.fn.stdpath("config")) .. "/../../pro-prompt-prose")
 
 return {
 	{
@@ -97,124 +98,12 @@ return {
 	{
 		"milanglacier/minuet-ai.nvim",
 		enabled = profiles.enabled("ai_libre") or profiles.enabled("ai_nonfree"),
-		config = function()
+		opts = function()
 			local provider, provider_options
 			if profiles.enabled("ai_nonfree") then
 				provider = "openai_compatible"
-				-- EXPLAIN: A message's `content` is either a string, or
-				-- EXPLAIN: a list of blocks like { {type="text", text="..."}, {type="tool_use", ...} }.
-				local function text_of(content)
-					-- EXPLAIN: Already plain text (a typed message): return it unchanged.
-					if type(content) == "string" then
-						return content
-					end
-					local parts = {}
-					for _, block in ipairs(content) do
-						if block.type == "text" then
-							table.insert(parts, block.text)
-						end
-					end
-					return table.concat(parts, "\n")
-				end
-				vim.api.nvim_create_autocmd("BufReadPost", {
-					pattern = "claude-prompt-*.md",
-					group = vim.api.nvim_create_augroup("custom-ai-claude-prompt", { clear = true }),
-					callback = function(event)
-						local pid = vim.uv.os_getppid()
-						while
-							pid > 1
-							and vim.fn.filereadable(vim.fn.expand("~/.claude/sessions/") .. pid .. ".json") == 0
-						do
-							pid = tonumber(vim.fn.system({ "ps", "-o", "ppid=", "-p", tostring(pid) }))
-						end
-						if pid <= 1 then
-							return
-						end
-						local session_file = vim.fn.expand("~/.claude/sessions/") .. pid .. ".json"
-						local session = vim.json.decode(table.concat(vim.fn.readfile(session_file), "\n"))
-						-- name is the session's folder with every character that is not a letter or digit
-						-- (`%W`) replaced by "-": /Users/felis/Programming/my-dotfiles becomes
-						-- -Users-felis-Programming-my-dotfiles. 
-						local transcript = vim.fn.expand("~/.claude/projects/")
-							.. session.cwd:gsub("%W", "-")
-							.. "/"
-							.. session.sessionId
-							.. ".jsonl"
-						if vim.fn.filereadable(transcript) == 0 then
-							return
-						end
-						-- Read the transcript's last 300 lines (-300), one JSON record per line. 
-						local user, reply = "", ""
-						for _, line in ipairs(vim.fn.readfile(transcript, "", -300)) do
-							local record = vim.json.decode(line)
-							local text = record.message and not record.isSidechain and text_of(record.message.content)
-								or ""
-							if text ~= "" and record.type == "user" then
-								user, reply = text, ""
-							elseif text ~= "" and record.type == "assistant" then
-								reply = text
-							end
-						end
-						vim.b[event.buf].claude_exchange = "<!-- Last exchange in this Claude Code session, for context only:\n\nUser:\n"
-							.. user:sub(-1500)
-							.. "\n\nClaude:\n"
-							.. reply:sub(-3000)
-							.. "\n-->\n"
-					end,
-				})
 				provider_options = {
 					openai_compatible = {
-						few_shots = {
-							{
-								-- EXPLAIN: Example 1: a conversation about a slow login, and a half-typed word ("cach") that the
-								-- EXPLAIN: answer below finishes ("ing you mentioned..."). The `..` lines just join one long string.
-								role = "user",
-								content = "<!-- language: markdown -->\n<!-- indentation: use 4 spaces for a tab -->\n<contextBeforeCursor>\n"
-									.. "<!-- Last exchange in this Claude Code session, for context only:\n\nUser:\nWhy is the login slow?\n\n"
-									.. "Claude:\nThe session lookup runs a query per request. Caching it would cut most of the time.\n-->\n"
-									.. "Can you add the cach<cursorPosition>\n<contextAfterCursor>\n\n",
-							},
-							{
-								role = "assistant",
-								content = "ing you mentioned, and keep it to the session lookup only?\n<endCompletion>\n",
-							},
-							{
-								-- EXPLAIN: Example 2: a short draft with no conversation, continued as a question.
-								role = "user",
-								content = "<!-- language: markdown -->\n<!-- indentation: use 4 spaces for a tab -->\n<contextBeforeCursor>\n"
-									.. "What does <cursorPosition>\n<contextAfterCursor>\n\n",
-							},
-							{
-								role = "assistant",
-								content = "this error mean, and where in the code does it come from?\n<endCompletion>\n",
-							},
-							{
-								-- EXPLAIN: Example 3: a conversation and an empty draft. The answer is a likely next message from
-								-- EXPLAIN: you, not a reply from Claude.
-								role = "user",
-								content = "<!-- language: markdown -->\n<!-- indentation: use 4 spaces for a tab -->\n<contextBeforeCursor>\n"
-									.. "<!-- Last exchange in this Claude Code session, for context only:\n\nUser:\nAdd a retry to the upload.\n\n"
-									.. "Claude:\nDone: the upload now retries three times with a growing delay. The tests pass.\n-->\n"
-									.. "<cursorPosition>\n<contextAfterCursor>\n\n",
-							},
-							{
-								role = "assistant",
-								content = "Thanks. Can you also log each retry, so I can see how often it happens?\n<endCompletion>\n",
-							},
-						},
-						chat_input = {
-							context_before_cursor = function(before, after, opts)
-								local default =
-									require("minuet.config").default_chat_input_prefix_first.context_before_cursor
-								-- Minuet starts text on a first line with an empty line, which also
-								-- made Haiku reply instead of continuing.
-								-- EXPLAIN: Right to left: default(...) is minuet's normal text; :gsub("^\n", "") drops one line break
-								-- EXPLAIN: at the very start (^ = at the start); `vim.b.claude_exchange or ""` is the stored exchange,
-								-- EXPLAIN: or nothing in any other file; `..` puts it first. gsub also returns a replacement count,
-								-- EXPLAIN: but inside a `..` expression Lua keeps only the text.
-								return (vim.b.claude_exchange or "") .. default(before, after, opts):gsub("^\n", "")
-							end,
-						},
 						api_key = "OPENROUTER_API_KEY",
 						end_point = "https://openrouter.ai/api/v1/chat/completions",
 						model = "anthropic/claude-haiku-5.5",
@@ -241,15 +130,11 @@ return {
 					},
 				}
 			end
-			require("minuet").setup({
+			return {
 				provider = provider,
 				provider_options = provider_options,
-				-- Ask soon after a pause, for one suggestion over the last ~4000
-				-- characters, so it arrives in about a second.
-				debounce = 150,
-				-- EXPLAIN: Was 500 ("never two requests less than 500 ms apart"). debounce = 150 is unchanged:
-				-- EXPLAIN: wait 150 ms after your last keystroke. With throttle 0 every pause sends a request,
-				-- EXPLAIN: and minuet cancels the outdated in-flight ones.
+				debounce = 8000, -- Wait 8 seconds
+				request_timeout = 15,
 				throttle = 0,
 				n_completions = 1,
 				context_window = 4000,
@@ -265,7 +150,10 @@ return {
 						dismiss = "<A-e>",
 					},
 				},
-			})
+			}
+		end,
+		config = function(_, opts)
+			require("minuet").setup(opts)
 
 			-- Minuet has no accept-word action, but it keeps a suggestion while
 			-- what you type matches its start, so type the suggestion's next word.
@@ -283,5 +171,16 @@ return {
 				end
 			end, { desc = "Minuet: accept next word" })
 		end,
+	},
+	{
+		-- Custom plugin that aids for writing prompts and prose. Hooks itself into minuet and nvim-cmp, 
+		-- must load it last. Currently the plugin lives in a different folder. No-op if folder not exists.
+		dir = pro_prompt_prose,
+		name = "pro-prompt-prose",
+		enabled = (profiles.enabled("ai_libre") or profiles.enabled("ai_nonfree"))
+			and vim.uv.fs_stat(pro_prompt_prose) ~= nil,
+		import = "pro-prompt-prose.specs",
+		lazy = false,
+		opts = {},
 	},
 }

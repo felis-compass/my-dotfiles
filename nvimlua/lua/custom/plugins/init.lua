@@ -2,14 +2,8 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
-return {
-	require("custom.plugins.markdown"),
-	require("custom.plugins.conform"),
-	require("custom.plugins.other"),
-	require("custom.plugins.fastapi"),
-	require("custom.plugins.git-tools"),
-	require("custom.plugins.completion"),
-
-	require("custom.plugins.ai"),
-	require("custom.plugins.ai-proprietary-only"),
-}
+--
+-- The other files here are not listed: `{ import = "custom.plugins" }` in the
+-- main init.lua loads every file in this directory, so requiring them here
+-- too would add each plugin spec twice.
+return {}
